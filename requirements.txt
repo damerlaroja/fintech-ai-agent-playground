@@ -1,0 +1,14 @@
+langgraph
+langchain
+langchain-core
+langchain-google-genai
+langchain-groq
+langchain-community
+yfinance
+streamlit
+pandas
+python-dotenv
+uuid
+lxml
+html5lib
+beautifulsoup4
