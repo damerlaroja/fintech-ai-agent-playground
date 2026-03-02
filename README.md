@@ -14,7 +14,7 @@
 
 ## 🚀 Live Demo
 
-**[▶ Try the Production Agent →](https://your-url.streamlit.app)**
+**[▶ Try the Production Agent →](https://damerlaroja-fintech-ai-agent-playground.streamlit.app/)**
 
 **Real-time capabilities:**
 - 📊 **Multi-stock comparative analysis** with fundamental metrics
