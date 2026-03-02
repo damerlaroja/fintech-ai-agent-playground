@@ -372,10 +372,10 @@ GROQ_API_KEY = "your-groq-api-key"
 
 **For enterprise inquiries, architecture consulting, or collaboration:**
 
-- 📧 **Email**: [your-email@example.com]
-- 💼 **LinkedIn**: [linkedin.com/in/your-profile]
-- 🐙 **GitHub**: [github.com/your-username]
-- 🐦 **Twitter**: [@your-twitter]
+- 📧 **Email**: [damerlaroja@gmail.com]
+- 💼 **LinkedIn**: [https://www.linkedin.com/in/roja-damerla-principal-architect/]
+- 🐙 **GitHub**: [github.com/damerlaroja]
+
 
 **License**: MIT - See [LICENSE](LICENSE) for details.
 
@@ -384,3 +384,5 @@ GROQ_API_KEY = "your-groq-api-key"
 **⚠️ Educational & Portfolio Demonstration Purposes Only**
 
 *This project showcases advanced AI system architecture patterns and is designed for portfolio demonstration, educational purposes, and architectural reference. Not intended for actual trading or financial advice.*
+ 
+ 
