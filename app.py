@@ -2,10 +2,7 @@ import streamlit as st
 import uuid
 from langchain_core.messages import HumanMessage, AIMessage
 from graph.workflow import create_workflow
-from config.settings import APP_TITLE, AGENT_VERSION, LLM_PROVIDER, GEMINI_MODEL, GROQ_MODEL
-
-# Page configuration
-st.set_page_config(page_title=APP_TITLE, layout="wide", page_icon="📈")
+from config.settings import APP_TITLE, AGENT_VERSION
 
 # Initialize session state
 if "messages" not in st.session_state:
@@ -15,20 +12,15 @@ if "thread_id" not in st.session_state:
 
 @st.cache_resource
 def get_compiled_workflow():
-    """Cache the compiled workflow for performance."""
     return create_workflow()
 
 def get_provider_display():
-    """Get the current LLM provider display string."""
-    from config.settings import get_active_provider, GEMINI_MODEL, GROQ_MODEL
+    from config.settings import get_active_provider
     active = get_active_provider()
     if active == "gemini":
-        model_display = f"Gemini 2.5 Flash"
-        provider_icon = "🟢"
+        return f"🟢 Gemini 2.5 Flash · Active\nLangGraph · yfinance"
     else:
-        model_display = f"Groq · Llama 3.3 70B"
-        provider_icon = "🟡"
-    return f"{provider_icon} {model_display} · Active\nLangGraph · yfinance"
+        return f"🟡 Groq · Llama 3.3 70B · Active\nLangGraph · yfinance"
 
 # Sidebar
 with st.sidebar:
@@ -43,11 +35,11 @@ with st.sidebar:
     
     with st.expander("💡 Try asking..."):
         st.markdown("""
-        1. "What is the current price and fundamentals of AAPL?"
-        2. "Compare MSFT, GOOGL, and AMZN by P/E ratio and market cap"
-        3. "Show me the 6-month price history for TSLA with key stats"
-        4. "What were NVDA's last 4 earnings surprises?"
-        5. "Find the ticker for Berkshire Hathaway and show its fundamentals"
+        • "What is the current price and fundamentals of AAPL?"
+        • "Compare MSFT, GOOGL, and AMZN by P/E ratio and market cap"
+        • "Show me the 6-month price history for TSLA with key stats"
+        • "What were NVDA's last 4 earnings surprises?"
+        • "Find the ticker for Berkshire Hathaway and show its fundamentals"
         """)
     
     if st.button("🗑️ Clear Chat"):
@@ -159,14 +151,11 @@ if prompt := st.chat_input("Ask about stocks, market data, or financial analysis
                 if any(term in error_str for term in
                        ["quota", "rate limit", "429", "resource exhausted",
                         "toomanyrequests"]):
-                    warning_msg = (
-                        "⚡ Rate limit reached on current provider. "
-                        "Switching to backup provider automatically — "
-                        "please resend your question."
-                    )
+                    warning_msg = ("⚡ Rate limit reached on current provider. "
+                                   "Switching to backup provider automatically — "
+                                   "please resend your question.")
                     st.warning(warning_msg)
-                    # Clear cache so next call reinitializes with fallback
-                    st.cache_resource.clear()
+                    st.cache_resource.clear()  # Clear cache for fallback
                     st.session_state.messages.append({"role": "assistant", "content": warning_msg})
                 else:
                     error_msg = f"An error occurred: {e}"
