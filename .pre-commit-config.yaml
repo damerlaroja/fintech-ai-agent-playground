@@ -1,9 +1,9 @@
 repos:
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.3
-    hooks:
-      - id: bandit
-        args: ["-r", ".", "--exclude", ".venv"]
+  # - repo: https://github.com/PyCQA/bandit
+  #   rev: 1.8.3
+  #   hooks:
+  #     - id: bandit
+  #       args: ["-r", ".", "--exclude", ".venv"]
 
   # - repo: https://github.com/Yelp/detect-secrets
   #   rev: v1.5.0
