@@ -109,6 +109,23 @@ if prompt := st.chat_input("Ask about stocks, market data, or financial analysis
                     config=config
                 )
                 
+                # Check if query was refined (compare original vs preprocessed)
+                original_query = prompt
+                if response["messages"] and len(response["messages"]) > 0:
+                    last_user_msg = None
+                    for msg in reversed(response["messages"]):
+                        if hasattr(msg, 'type') and msg.type == 'human':
+                            last_user_msg = msg.content
+                            break
+                        elif isinstance(msg, HumanMessage):
+                            last_user_msg = msg.content
+                            break
+                    
+                    # Show refinement indicator if query was actually processed
+                    if last_user_msg and last_user_msg != f"User asks: {original_query}" and last_user_msg != original_query:
+                        refined_query = last_user_msg
+                        st.caption(f"🔍 Analyzed as: *{refined_query}*")
+                
                 # Extract and display response
                 if response["messages"]:
                     raw = response["messages"][-1].content

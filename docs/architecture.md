@@ -133,9 +133,10 @@ flowchart TD
 
 1. **config/settings.py**: Centralized configuration and LLM provider abstraction
 2. **tools/market_tools.py**: LangGraph-compatible yfinance tool wrappers
-3. **agents/market_agent.py**: ReAct agent with Senior Equity Research Analyst persona
-4. **graph/workflow.py**: StateGraph with MemorySaver for conversation persistence
-5. **app.py**: Streamlit UI with chat interface and session management
+3. **tools/query_preprocessor.py**: Query normalization and company name resolution
+4. **agents/market_agent.py**: ReAct agent with Senior Equity Research Analyst persona
+5. **graph/workflow.py**: StateGraph with MemorySaver for conversation persistence
+6. **app.py**: Streamlit UI with chat interface and session management
 
 ## 🧠 Design Patterns Reference
 
@@ -164,17 +165,19 @@ flowchart TD
 | **Dependency Injection** | `agents/market_agent.py` · `build_market_agent()` | LLM instance is injected via `get_llm()` rather than instantiated internally — agent is decoupled from provider implementation details |
 | **Fail-Safe / Graceful Degradation** | `tools/market_tools.py` | Every tool wraps external API calls in try/except — failures return informative strings instead of raising exceptions, preventing cascading failures in the agent reasoning loop |
 | **Singleton via Cache** | `app.py` · `@st.cache_resource` | The compiled LangGraph workflow is instantiated once per Streamlit server session — repeated user interactions reuse the cached graph, eliminating redundant initialization overhead |
-| **Template Method** | `graph/workflow.py` | The StateGraph defines a fixed agent execution skeleton (START → node → END) with clearly marked extension points for subclass-style specialization in future phases |
+| **Chain of Responsibility** | `graph/workflow.py` · query_preprocessor_node | Each node in the workflow processes the request in sequence — preprocessor handles normalization before passing to market research |
+| **Facade Pattern** | `tools/query_preprocessor.py` | Single function provides a clean interface over complex LLM query transformation logic — callers get normalized output without knowing the internal rules |
 
 ### Data Flow
 
 1. User input → Streamlit chat interface
-2. Message conversion → LangChain message format
-3. Workflow invocation → StateGraph with thread ID
-4. Agent processing → Market agent with tool access
-5. Tool execution → yfinance data retrieval
-6. Response formatting → Structured analysis with citations
-7. UI display → Chat message with disclaimer
+2. Message conversion → LangChain message format  
+3. Query preprocessing → Company name resolution + question reframing
+4. Workflow invocation → StateGraph with thread ID
+5. Agent processing → Market agent with tool access
+6. Tool execution → yfinance data retrieval
+7. Response formatting → Structured analysis with citations
+8. UI display → Chat message with disclaimer
 
 ### Memory Management
 
