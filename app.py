@@ -59,8 +59,32 @@ for message in st.session_state.messages:
 
 # Chat input
 if prompt := st.chat_input("Ask about stocks, market data, or financial analysis..."):
-    # Add user message to chat
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Input validation and security checks
+    if not prompt or not prompt.strip():
+        st.warning("Please enter a valid question.")
+        st.stop()
+    
+    # Length validation
+    if len(prompt) > 2000:
+        st.error("Query too long. Please keep questions under 2000 characters.")
+        st.stop()
+    
+    # Prompt injection detection
+    injection_patterns = [
+        "ignore previous instructions", "you are now", "disregard",
+        "system:", "assistant:", "forget your instructions",
+        "act as", "pretend to be", "roleplay as",
+        "jailbreak", "bypass", "override"
+    ]
+    
+    prompt_lower = prompt.lower()
+    if any(pattern in prompt_lower for pattern in injection_patterns):
+        st.error("Invalid query format. Please ask about stock market data in a clear, direct way.")
+        st.stop()
+    
+    # Add user message to chat (wrapped in human message template)
+    user_message = f"User asks: {prompt}"
+    st.session_state.messages.append({"role": "user", "content": user_message})
     with st.chat_message("user"):
         st.markdown(prompt)
     
