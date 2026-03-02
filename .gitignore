@@ -3,13 +3,16 @@
 
 # Environment variables
 .env
-
-# Virtual environment
+.env.local
+.env.production
+.env.*
 .venv/
+venv/
 
 # Python cache
 __pycache__/
 *.pyc
+*.pyo
 
 # macOS
 .DS_Store
@@ -28,3 +31,27 @@ __pycache__/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+Thumbs.db
+
+# Certificates and keys
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Build and dist
+dist/
+build/
+*.egg-info/
+
+# Coverage
+htmlcov/
+.coverage
+
+# Node modules (if any)
+node_modules/

@@ -137,6 +137,35 @@ flowchart TD
 4. **graph/workflow.py**: StateGraph with MemorySaver for conversation persistence
 5. **app.py**: Streamlit UI with chat interface and session management
 
+## 🧠 Design Patterns Reference
+
+### Agentic AI Design Patterns
+
+| Pattern | Where Implemented | Description |
+|---|---|---|
+| **ReAct (Reason + Act)** | `agents/market_agent.py` | Agent alternates between reasoning about query and acting via tool calls until it reaches a confident answer |
+| **Tool Use** | `tools/market_tools.py` | Six typed, docstring-driven tool functions act as the agent's external capability layer — docstrings serve as the LLM's tool-selection contract |
+| **Reflection** | `agents/market_agent.py` | Agent evaluates quality and completeness of tool outputs before composing the final response, self-correcting when data is insufficient |
+| **Memory** | `graph/workflow.py` | LangGraph MemorySaver provides thread-scoped stateful checkpointing — agent retains context across multi-turn conversations within a session |
+| **Planning** | `graph/workflow.py` | StateGraph defines explicit execution flow with marked extension points for Phase 2 and Phase 3 agents — deliberate, inspectable control flow over implicit LLM chaining |
+| **Human-in-the-Loop (HITL)** | `graph/workflow.py` (Phase 3 marker) | Architecture explicitly reserves an interrupt node for human approval on high-stakes decisions — required pattern for regulated fintech AI |
+| **Multi-Agent Orchestration** | `graph/workflow.py` (Phase 2/3 markers) | Supervisor-to-specialist routing pattern is pre-wired in the StateGraph, ready for activation in Phase 2 without structural refactoring |
+
+### Software Engineering Design Patterns
+
+| Pattern | Where Implemented | Description |
+|---|---|---|
+| **Factory Pattern** | `config/settings.py` · `get_llm()` | Encapsulates LLM instantiation logic — callers request an LLM instance without knowing which provider or model is active |
+| **Strategy Pattern** | `config/settings.py` · `LLM_PROVIDER` | LLM provider is a swappable strategy — switching from Gemini to Groq changes one configuration value with zero impact on agent behavior |
+| **Facade Pattern** | `tools/market_tools.py` | Six tool functions expose a clean, LLM-friendly interface over yfinance's complex API — agents interact with simple string-in/string-out contracts |
+| **Repository Pattern** | `tools/market_tools.py` | All external data access is encapsulated in the tool layer — agent logic never calls yfinance directly, enabling the data layer to be swapped independently |
+| **Open/Closed Principle** | `graph/workflow.py` | The StateGraph is open for extension (new agent nodes can be registered) and closed for modification (existing nodes remain untouched when new phases are added) |
+| **Single Responsibility** | All modules | Each file owns exactly one concern: tools fetch data, agents reason, graph orchestrates, config configures, app renders UI |
+| **Dependency Injection** | `agents/market_agent.py` · `build_market_agent()` | LLM instance is injected via `get_llm()` rather than instantiated internally — agent is decoupled from provider implementation details |
+| **Fail-Safe / Graceful Degradation** | `tools/market_tools.py` | Every tool wraps external API calls in try/except — failures return informative strings instead of raising exceptions, preventing cascading failures in the agent reasoning loop |
+| **Singleton via Cache** | `app.py` · `@st.cache_resource` | The compiled LangGraph workflow is instantiated once per Streamlit server session — repeated user interactions reuse the cached graph, eliminating redundant initialization overhead |
+| **Template Method** | `graph/workflow.py` | The StateGraph defines a fixed agent execution skeleton (START → node → END) with clearly marked extension points for subclass-style specialization in future phases |
+
 ### Data Flow
 
 1. User input → Streamlit chat interface
