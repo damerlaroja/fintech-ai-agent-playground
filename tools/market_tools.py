@@ -1,6 +1,36 @@
 import yfinance as yf
 import pandas as pd
+import re
 from langchain_core.tools import tool
+
+
+def sanitize_output(text: str, max_length: int = 3000) -> str:
+    """
+    Sanitize tool output for LLM safety.
+    
+    Args:
+        text: Raw output from yfinance or tool processing
+        max_length: Maximum allowed characters (default 3000)
+        
+    Returns:
+        Sanitized, attributed output string
+    """
+    if not isinstance(text, str):
+        text = str(text)
+    
+    # Remove content between brackets that could contain code/instructions
+    text = re.sub(r'<[^>]*>', '', text)  # Remove <...>
+    text = re.sub(r'\[[^\]]*\]', '', text)  # Remove [...]
+    
+    # Truncate if too long
+    if len(text) > max_length:
+        text = text[:max_length-3] + "..."
+    
+    # Add data source attribution
+    if not text.strip().startswith("DATA SOURCE:"):
+        text = f"DATA SOURCE: Yahoo Finance — {text.strip()}"
+    
+    return text.strip()
 
 
 @tool
@@ -30,7 +60,7 @@ def get_stock_price(ticker: str) -> str:
         week_52_high = info.get('fiftyTwoWeekHigh', 'N/A')
         week_52_low = info.get('fiftyTwoWeekLow', 'N/A')
         
-        return f"""{ticker.upper()} Stock Price Information:
+        return sanitize_output(f"""{ticker.upper()} Stock Price Information:
 
 Current Price: ${current_price:.2f}
 Day High: ${day_high:.2f}
@@ -39,7 +69,7 @@ Day Low: ${day_low:.2f}
 52-Week Low: ${week_52_low}
 Volume: {volume:,}
 
-Source: Yahoo Finance via yfinance"""
+Source: Yahoo Finance via yfinance""")
         
     except Exception as e:
         return f"Error retrieving stock price for {ticker}: {str(e)}"
@@ -73,7 +103,7 @@ def get_stock_fundamentals(ticker: str) -> str:
         if dividend_yield != 'N/A' and dividend_yield:
             dividend_yield = f"{dividend_yield*100:.2f}%"
             
-        return f"""{ticker.upper()} Fundamental Analysis:
+        return sanitize_output(f"""{ticker.upper()} Fundamental Analysis:
 
 P/E Ratio: {pe_ratio}
 Market Cap: {market_cap}
@@ -82,7 +112,7 @@ Dividend Yield: {dividend_yield}
 Sector: {sector}
 Industry: {industry}
 
-Source: Yahoo Finance via yfinance"""
+Source: Yahoo Finance via yfinance""")
         
     except Exception as e:
         return f"Error retrieving fundamentals for {ticker}: {str(e)}"
@@ -121,7 +151,7 @@ def get_price_history(ticker: str, period: str = "3mo") -> str:
         drawdown = ((hist['Close'] - rolling_max) / rolling_max) * 100
         max_drawdown = drawdown.min()
         
-        return f"""{ticker.upper()} Price History ({period}):
+        return sanitize_output(f"""{ticker.upper()} Price History ({period}):
 
 Start Price: ${start_price:.2f}
 End Price: ${end_price:.2f}
@@ -129,7 +159,7 @@ Total Return: {pct_change:.2f}%
 Average Volume: {avg_volume:,.0f}
 Max Drawdown: {max_drawdown:.2f}%
 
-Source: Yahoo Finance via yfinance"""
+Source: Yahoo Finance via yfinance""")
         
     except Exception as e:
         return f"Error retrieving price history for {ticker}: {str(e)}"
@@ -177,7 +207,7 @@ def get_earnings_history(ticker: str) -> str:
         result += """
 
 Source: Yahoo Finance via yfinance"""
-        return result
+        return sanitize_output(result)
         
     except Exception as e:
         return f"Error retrieving earnings history for {ticker}: {str(e)}"
@@ -229,7 +259,7 @@ def compare_stocks(tickers: str) -> str:
                 result += f"{ticker:<8} Error retrieving data\n"
                 
         result += "\n\nSource: Yahoo Finance via yfinance"
-        return result
+        return sanitize_output(result)
         
     except Exception as e:
         return f"Error comparing stocks: {str(e)}"
@@ -284,7 +314,7 @@ def search_ticker(company_name: str) -> str:
             stock = yf.Ticker(ticker)
             info = stock.info
             company_name_full = info.get('longName', 'Unknown Company')
-            return f"Found: {ticker} - {company_name_full}\n\nSource: Yahoo Finance via yfinance"
+            return sanitize_output(f"Found: {ticker} - {company_name_full}\n\nSource: Yahoo Finance via yfinance")
             
         # Try partial match
         for name, ticker in common_mappings.items():
@@ -292,9 +322,9 @@ def search_ticker(company_name: str) -> str:
                 stock = yf.Ticker(ticker)
                 info = stock.info
                 company_name_full = info.get('longName', 'Unknown Company')
-                return f"Found: {ticker} - {company_name_full}\n\nSource: Yahoo Finance via yfinance"
+                return sanitize_output(f"Found: {ticker} - {company_name_full}\n\nSource: Yahoo Finance via yfinance")
                 
-        return f"No exact match found for '{company_name}'. Try the exact company name or ticker symbol.\n\nSource: Yahoo Finance via yfinance"
+        return sanitize_output(f"No exact match found for '{company_name}'. Try the exact company name or ticker symbol.\n\nSource: Yahoo Finance via yfinance")
         
     except Exception as e:
         return f"Error searching for ticker: {str(e)}"
