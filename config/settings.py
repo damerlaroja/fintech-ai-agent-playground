@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # ── LLM Configuration ──────────────────────────────────────────────────────
-LLM_PROVIDER   = "gemini"               # Primary provider
+LLM_PROVIDER   = "groq"               # Primary provider
 GEMINI_MODEL   = "gemini-2.5-flash"
 GROQ_MODEL     = "llama-3.3-70b-versatile"
 TEMPERATURE    = 0

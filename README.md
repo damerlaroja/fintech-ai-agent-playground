@@ -1,6 +1,6 @@
 # 🏦 Fintech AI Agent Playground
 
-> **Enterprise-grade multi-agent AI architecture for real-time financial market research — production patterns, zero-downtime resilience, and scalable design for principal architect portfolio demonstration.**
+> **Enterprise-grade multi-agent AI architecture for real-time financial market research — production patterns, zero-downtime resilience, and scalable design **
 
 [![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)](https://python.org)
 [![LangGraph](https://img.shields.io/badge/LangGraph-v1.0-green?logo=langchain)](https://langchain-ai.github.io/langgraph/)
@@ -69,10 +69,21 @@ flowchart TD
     MA --> TOOLS[🔧 Tool Layer\nyfinance + Sanitization]
     TOOLS --> DATA[📊 Real-time Market Data\nYahoo Finance API]
     
-    style QP fill:#e1f5fe
-    style WF fill:#f3e5f5
-    style MA fill:#e8f5e8
-    style TOOLS fill:#fff3e0
+    classDef default fill:#1e1e1e,stroke:#ffffff,stroke-width:2px,color:#ffffff,font-family:monospace
+    classDef userNode fill:#2d2d2d,stroke:#4fc3f7,stroke-width:2px,color:#4fc3f7,font-family:monospace
+    classDef preprocessorNode fill:#1e3a5f,stroke:#64b5f6,stroke-width:2px,color:#64b5f6,font-family:monospace
+    classDef workflowNode fill:#2e1a3d,stroke:#ba68c8,stroke-width:2px,color:#ba68c8,font-family:monospace
+    classDef agentNode fill:#1e3e1e,stroke:#66bb6a,stroke-width:2px,color:#66bb6a,font-family:monospace
+    classDef toolNode fill:#3e2e1e,stroke:#ffb74d,stroke-width:2px,color:#ffb74d,font-family:monospace
+    classDef dataNode fill:#2e3e1e,stroke:#4db6ac,stroke-width:2px,color:#4db6ac,font-family:monospace
+    
+    class User userNode
+    class UI preprocessorNode
+    class QP workflowNode
+    class WF agentNode
+    class MA toolNode
+    class TOOLS dataNode
+    class DATA default
 ```
 
 ### 📊 Architecture Decision Records (ADRs)
