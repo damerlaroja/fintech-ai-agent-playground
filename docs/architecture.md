@@ -193,3 +193,16 @@ flowchart TD
 - **Rate Limiting**: Relies on provider-side rate limiting (Gemini/Groq free tiers)
 - **Data Privacy**: No user data persistence beyond session state
 - **Disclaimer**: Educational purpose disclaimer included in all responses
+
+## Resilience Architecture
+- **Primary LLM**: Gemini 2.5 Flash with automatic failover
+- **Fallback LLM**: Groq Llama 3.3 70B activated transparently on failure
+- **Failure modes handled**: rate limits (429), API key errors, network timeouts, provider outages
+- **User experience during failover**: seamless — no error shown, next request served by fallback provider
+- **Recovery**: st.cache_resource.clear() forces LLM reinitialization on next request, allowing primary provider to recover
+
+### ADR-006: Automatic LLM Provider Fallback
+- **Status**: Accepted
+- **Context**: Free tier LLM providers enforce rate limits that would cause user-facing errors during live portfolio demos and production usage
+- **Decision**: Implement a layered get_llm() factory with silent fallback from Gemini to Groq, with UI feedback via active provider indicator
+- **Consequences**: Zero-downtime provider switching; slight latency increase on first fallback call; requires both API keys configured

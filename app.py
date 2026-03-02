@@ -20,10 +20,15 @@ def get_compiled_workflow():
 
 def get_provider_display():
     """Get the current LLM provider display string."""
-    if LLM_PROVIDER == "gemini":
-        return f"LangGraph · {GEMINI_MODEL} · yfinance"
+    from config.settings import get_active_provider, GEMINI_MODEL, GROQ_MODEL
+    active = get_active_provider()
+    if active == "gemini":
+        model_display = f"Gemini 2.5 Flash"
+        provider_icon = "🟢"
     else:
-        return f"LangGraph · {GROQ_MODEL} · yfinance"
+        model_display = f"Groq · Llama 3.3 70B"
+        provider_icon = "🟡"
+    return f"{provider_icon} {model_display} · Active\nLangGraph · yfinance"
 
 # Sidebar
 with st.sidebar:
@@ -31,8 +36,10 @@ with st.sidebar:
     st.caption(AGENT_VERSION)
     
     st.markdown("---")
-    st.markdown("**Powered by:**")
-    st.caption(get_provider_display())
+    st.markdown(f"""
+    **Powered by**
+    {get_provider_display()}
+    """)
     
     with st.expander("💡 Try asking..."):
         st.markdown("""
@@ -148,9 +155,23 @@ if prompt := st.chat_input("Ask about stocks, market data, or financial analysis
                     st.session_state.messages.append({"role": "assistant", "content": error_msg})
                     
             except Exception as e:
-                error_msg = f"An error occurred: {str(e)}"
-                st.error(error_msg)
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                error_str = str(e).lower()
+                if any(term in error_str for term in
+                       ["quota", "rate limit", "429", "resource exhausted",
+                        "toomanyrequests"]):
+                    warning_msg = (
+                        "⚡ Rate limit reached on current provider. "
+                        "Switching to backup provider automatically — "
+                        "please resend your question."
+                    )
+                    st.warning(warning_msg)
+                    # Clear cache so next call reinitializes with fallback
+                    st.cache_resource.clear()
+                    st.session_state.messages.append({"role": "assistant", "content": warning_msg})
+                else:
+                    error_msg = f"An error occurred: {e}"
+                    st.error(error_msg)
+                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
 # Footer
 st.markdown("---")
