@@ -303,6 +303,7 @@ GROQ_API_KEY = "your-groq-api-key"
 - 🧪 **Add tests** for new functionality
 - 🔒 **Security review** required for all changes
 - 📊 **Performance testing** for production impact
+- 📋 **See WINDSURF_RULES.md for development and testing constraints before contributing or running prompts.**
 
 ---
 

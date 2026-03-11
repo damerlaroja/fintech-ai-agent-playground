@@ -1,0 +1,15 @@
+{
+  "sanctioned_entities": [
+    {"name": "Shadow Corp", "country": "IR", "risk_level": "critical"},
+    {"name": "Ghost Trading LLC", "country": "KP", "risk_level": "critical"},
+    {"name": "Dark Finance Ltd", "country": "RU", "risk_level": "high"},
+    {"name": "Phantom Capital", "country": "SY", "risk_level": "high"},
+    {"name": "Vortex Holdings", "country": "BY", "risk_level": "medium"}
+  ],
+  "high_risk_countries": ["IR", "KP", "RU", "SY", "BY", "CU"],
+  "transaction_thresholds": {
+    "large_transaction": 10000,
+    "suspicious_pattern": 9000,
+    "structuring_limit": 3000
+  }
+}

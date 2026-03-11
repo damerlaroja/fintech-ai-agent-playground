@@ -12,3 +12,5 @@ uuid
 lxml
 html5lib
 beautifulsoup4
+faker
+numpy

@@ -55,3 +55,14 @@ htmlcov/
 
 # Node modules (if any)
 node_modules/
+
+# Draw.io files (diagrams are large and binary)
+*.drawio
+architecture-diagram.drawio
+
+# Blog post (content files that may be edited locally)
+blog-post.md
+
+# Documentation files (exclude README.md which should be tracked)
+*.md
+!README.md
