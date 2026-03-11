@@ -14,7 +14,7 @@
 
 ## 🚀 Live Demo
 
-**[▶ Try the Production Agent →](https://your-url.streamlit.app)**
+**[▶ Try the Production Agent →](https://damerlaroja-fintech-ai-agent-playground.streamlit.app/)**
 
 **Real-time capabilities:**
 - 📊 **Multi-stock comparative analysis** with fundamental metrics
@@ -362,10 +362,9 @@ GROQ_API_KEY = "your-groq-api-key"
 
 **For enterprise inquiries, architecture consulting, or collaboration:**
 
-- 📧 **Email**: [your-email@example.com]
-- 💼 **LinkedIn**: [linkedin.com/in/your-profile]
-- 🐙 **GitHub**: [github.com/your-username]
-- 🐦 **Twitter**: [@your-twitter]
+- 📧 **Email**: [damerlaroja@gmail.com]
+- 💼 **LinkedIn**: [https://www.linkedin.com/in/roja-damerla-principal-architect/]
+- 🐙 **GitHub**: [https://github.com/damerlaroja]
 
 **License**: MIT - See [LICENSE](LICENSE) for details.
 
