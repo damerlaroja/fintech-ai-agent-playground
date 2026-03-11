@@ -171,6 +171,50 @@ flowchart TD
 
 ---
 
+## Phase 2: Risk Agent
+
+### 🔍 Risk Analysis Capabilities
+
+- **Value at Risk (VaR)**: Calculate potential losses with confidence intervals using historical simulation
+- **Beta Analysis**: Measure systematic risk relative to market benchmarks (S&P 500 default)
+- **Portfolio Risk Scoring**: Aggregate risk assessment across multiple positions with diversification metrics
+- **Transaction Compliance**: Sanctions screening and suspicious pattern detection with mock regulatory data
+- **Synthetic Data Generation**: Generate realistic transaction data for testing and analysis
+
+### 📦 New Dependencies Added
+
+- `faker` - Synthetic transaction data generation for testing scenarios
+- `numpy` - Statistical calculations for risk metrics and portfolio analysis
+
+### 🚀 How to Run and Test
+
+```bash
+# Start the application with Phase 2 active
+streamlit run app.py
+
+# Run the risk agent tests
+python -m pytest tests/test_risk_agent.py -v
+```
+
+### 🎯 Accessing the Risk Agent
+
+1. Launch the application and click **"⚠️ Phase 2\nRisk Analysis"** in the sidebar
+2. Ask questions like:
+   - "Calculate VaR for AAPL at 95% confidence"
+   - "What's the beta of TSLA relative to S&P 500?"
+   - "Analyze portfolio risk for [AAPL, MSFT, GOOGL]"
+   - "Check if transaction with Shadow Corp is sanctioned"
+   - "Generate 50 synthetic transactions for NVDA"
+
+### ⚠️ Known Limitations
+
+- **Mock regulatory data only** - Uses simulated sanctions list for demonstration
+- **Free-tier data constraints** - Limited to yfinance free-tier rate limits
+- **Educational purposes** - Not for production trading or investment advice
+- **No real-time data** - Historical analysis only, no live market data feeds
+
+---
+
 ## 🗺️ Production Roadmap
 
 | Phase | Features | Architecture | Status |

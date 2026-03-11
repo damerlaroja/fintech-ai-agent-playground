@@ -2,6 +2,7 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, AIMessage
 from agents.market_agent import build_market_agent
+from agents.risk_agent import build_risk_agent, risk_agent_node
 from tools.query_preprocessor import preprocess_query
 from config.settings import get_llm
 
@@ -76,17 +77,28 @@ def market_research_node(state: MessagesState):
     return {"messages": response["messages"]}
 
 
-def create_workflow():
+def create_workflow(phase="phase1"):
     """
     Create and compile the LangGraph workflow for market research.
     
     This function builds a linear workflow that:
+    Phase 1:
     1. Starts with user input
     2. Preprocesses query (company name resolution, question reframing)
     3. Processes through market research node
     4. Ends with agent response
     
+    Phase 2:
+    1. Starts with user input
+    2. Preprocesses query (company name resolution, question reframing)
+    3. Processes through market research node
+    4. Processes through risk agent node
+    5. Ends with agent response
+    
     The workflow includes MemorySaver for persistent conversation history.
+    
+    Args:
+        phase: "phase1" for market research only, "phase2" for full workflow
     
     Returns:
         Compiled LangGraph workflow ready for execution
@@ -97,17 +109,19 @@ def create_workflow():
     # Add nodes
     workflow.add_node("query_preprocessor", query_preprocessor_node)
     workflow.add_node("market_research", market_research_node)
+    workflow.add_node("risk_agent", risk_agent_node)
     
-    # Define the flow: START → query_preprocessor → market_research → END
-    workflow.add_edge(START, "query_preprocessor")
-    workflow.add_edge("query_preprocessor", "market_research")
-    workflow.add_edge("market_research", END)
-    
-    # ── PHASE 2: Register risk_agent_node here ──────────────────────────────
-    # Example for Phase 2:
-    # workflow.add_node("risk_agent", risk_agent_node)
-    # workflow.add_edge("market_research", "risk_agent")
-    # workflow.add_edge("risk_agent", END)
+    if phase == "phase1":
+        # Phase 1: Only market research
+        workflow.add_edge(START, "query_preprocessor")
+        workflow.add_edge("query_preprocessor", "market_research")
+        workflow.add_edge("market_research", END)
+    else:
+        # Phase 2: Full flow with risk agent
+        workflow.add_edge(START, "query_preprocessor")
+        workflow.add_edge("query_preprocessor", "market_research")
+        workflow.add_edge("market_research", "risk_agent")
+        workflow.add_edge("risk_agent", END)
     
     # ── PHASE 3: Register supervisor_node and report_agent_node here ─────────
     # Example for Phase 3:
