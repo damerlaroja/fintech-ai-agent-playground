@@ -3,6 +3,9 @@ import uuid
 from langchain_core.messages import HumanMessage, AIMessage
 from graph.workflow import create_workflow
 from config.settings import APP_TITLE, AGENT_VERSION
+from agents.risk_agent import risk_agent_node
+import plotly.graph_objects as go
+import plotly.express as px
 
 # Initialize session state
 if "messages" not in st.session_state:
@@ -13,8 +16,8 @@ if "active_phase" not in st.session_state:
     st.session_state.active_phase = "phase1"
 
 @st.cache_resource
-def get_compiled_workflow():
-    return create_workflow()
+def get_compiled_workflow(phase="phase1"):
+    return create_workflow(phase)
 
 def get_provider_display():
     from config.settings import get_active_provider
@@ -110,7 +113,7 @@ if st.session_state.active_phase == "phase1":
         with st.chat_message("assistant"):
             with st.spinner("🔍 Analyzing..."):
                 try:
-                    workflow = get_compiled_workflow()
+                    workflow = get_compiled_workflow("phase1")
                     
                     # Convert messages to LangChain format
                     langchain_messages = []
@@ -182,20 +185,180 @@ if st.session_state.active_phase == "phase1":
                         st.session_state.messages.append({"role": "assistant", "content": error_msg})
 
 else:
-    # Phase 2: Risk Analysis Agent (placeholder)
-    st.title("Risk Analysis Agent")
-    st.caption("Coming soon — VaR, Beta, Portfolio Risk, Transaction Compliance")
+    # Phase 2: Risk Analysis Dashboard
+    st.title("🔍 Risk Analysis Dashboard")
+    st.caption("Portfolio risk assessment and transaction compliance analysis")
     
-    st.markdown("""
-    ### 🔍 Risk Analysis Features (Under Development)
+    # DEBUG: Test imports at page load
+    try:
+        from agents.risk_agent import RiskAgent
+        import plotly.graph_objects as go
+        import plotly.express as px
+        st.write("DEBUG: All Phase 2 imports OK")
+    except Exception as e:
+        st.error(f"DEBUG: Import failed: {e}")
+        st.stop()
     
-    - **Value at Risk (VaR)**: Calculate potential losses with confidence intervals
-    - **Beta Analysis**: Measure systematic risk relative to market benchmarks  
-    - **Portfolio Risk Scoring**: Aggregate risk assessment across multiple positions
-    - **Transaction Compliance**: Sanctions screening and suspicious pattern detection
+    # Initialize session state for risk results
+    if 'risk_results' not in st.session_state:
+        st.session_state.risk_results = {}
     
-    *Phase 2 implementation in progress. Check back soon for full risk analysis capabilities.*
-    """)
+    # Form inputs
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        ticker = st.text_input("Ticker Symbol", placeholder="AAPL", key="risk_ticker")
+    with col2:
+        st.write("")  # Spacer
+        analyze_btn = st.button("🔬 Analyze Risk", type="primary")
+    
+    # Results area
+    if analyze_btn and ticker:
+        if not ticker or not ticker.strip():
+            st.warning("Please enter a valid ticker symbol.")
+            st.stop()
+        
+        with st.spinner("Analyzing risk..."):
+            try:
+                # Direct RiskAgent calls (no workflow, no build_risk_agent)
+                from agents.risk_agent import RiskAgent
+                agent = RiskAgent()
+                
+                # Get structured data using exact dict keys
+                vol = agent.analyze_volatility(ticker)
+                sentiment = agent.analyze_sentiment_risk(ticker)
+                regulatory = agent.analyze_regulatory_risk(ticker, sentiment.get("headlines", []))
+                composite = agent.compute_composite_score(vol, sentiment, regulatory)
+                narrative = agent.generate_risk_narrative(ticker, composite, vol, sentiment, regulatory)
+                
+                # Cache results
+                st.session_state.risk_results[ticker.upper()] = {
+                    'vol': vol, 'sentiment': sentiment, 
+                    'regulatory': regulatory, 'composite': composite, 'narrative': narrative
+                }
+                
+                # Display results using exact dict keys
+                st.success(f"✅ Risk analysis complete for {ticker.upper()}")
+                
+                # Gauge Chart for Composite Score
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    fig_gauge = go.Figure(go.Indicator(
+                        mode = "gauge+number+delta",
+                        value = composite.get("composite", 0),
+                        domain = {'x': [0, 1], 'y': [0, 1]},
+                        title = {'text': "Overall Risk Score"},
+                        delta = {'reference': 50},
+                        gauge = {
+                            'axis': {'range': [None, 100]},
+                            'bar': {'color': "darkblue"},
+                            'steps': [
+                                {'range': [0, 40], 'color': "lightgray"},
+                                {'range': [40, 70], 'color': "gray"},
+                                {'range': [70, 100], 'color': "lightcoral"}
+                            ],
+                            'threshold': {
+                                'line': {'color': "red", 'width': 4},
+                                'thickness': 0.75,
+                                'value': 70
+                            }
+                        }
+                    ))
+                    fig_gauge.update_layout(height=300)
+                    st.plotly_chart(fig_gauge, use_container_width=True)
+                
+                with col2:
+                    st.metric("Risk Level", composite.get("label", "Unknown"))
+                    st.metric("Volatility", vol.get("label", "Unknown"))
+                    st.metric("Sentiment", sentiment.get("label", "Unknown"))
+                
+                with col3:
+                    st.metric("Regulatory", regulatory.get("label", "Unknown"))
+                    st.metric("News Items", sentiment.get("total_count", 0))
+                    st.metric("Flags", len(regulatory.get("flags", [])))
+                
+                # Rolling Volatility Chart
+                st.subheader("📈 Rolling Volatility Analysis")
+                if vol.get("series") and vol.get("dates"):
+                    fig_vol = go.Figure()
+                    
+                    # Add volatility line
+                    fig_vol.add_trace(go.Scatter(
+                        x=vol.get("dates", []),
+                        y=vol.get("series", []),
+                        mode='lines',
+                        name='21-Day Rolling Volatility',
+                        line=dict(color='blue', width=2)
+                    ))
+                    
+                    # Add threshold lines
+                    fig_vol.add_hline(y=vol.get("threshold_low", 20), line_dash="dash", line_color="green", 
+                                     annotation_text=f"Low Threshold: {vol.get('threshold_low', 20)}%")
+                    fig_vol.add_hline(y=vol.get("threshold_high", 40), line_dash="dash", line_color="red", 
+                                     annotation_text=f"High Threshold: {vol.get('threshold_high', 40)}%")
+                    
+                    fig_vol.update_layout(
+                        title=f"{ticker.upper()} Volatility Trend",
+                        xaxis_title="Date",
+                        yaxis_title="Volatility (%)",
+                        hovermode='x unified'
+                    )
+                    st.plotly_chart(fig_vol, use_container_width=True)
+                else:
+                    st.info("No volatility data available.")
+                
+                # Sentiment Analysis Chart
+                st.subheader("💭 Sentiment Analysis")
+                col1, col2 = st.columns(2)
+                with col1:
+                    sentiment_data = {
+                        'Positive': sentiment.get("positive_count", 0),
+                        'Negative': sentiment.get("negative_count", 0),
+                        'Neutral': sentiment.get("total_count", 0) - sentiment.get("positive_count", 0) - sentiment.get("negative_count", 0)
+                    }
+                    fig_sentiment = go.Figure(data=[
+                        go.Bar(x=list(sentiment_data.keys()), y=list(sentiment_data.values()),
+                              marker_color=['green', 'red', 'gray'])
+                    ])
+                    fig_sentiment.update_layout(title="News Sentiment Distribution", yaxis_title="Count")
+                    st.plotly_chart(fig_sentiment, use_container_width=True)
+                
+                with col2:
+                    st.metric("Sentiment Score", f"{sentiment.get('score', 0)}%")
+                    st.metric("Positive News", sentiment.get("positive_count", 0))
+                    st.metric("Negative News", sentiment.get("negative_count", 0))
+                
+                # Regulatory Risk Pills
+                st.subheader("⚖️ Regulatory Compliance")
+                if regulatory.get("flags"):
+                    st.write("**Detected Risk Flags:**")
+                    for flag in regulatory.get("flags", []):
+                        st.pill(flag, icon="⚠️")
+                else:
+                    st.success("✅ No regulatory flags detected")
+                
+                st.info(regulatory.get("narrative", ""))
+                
+                # Risk Narrative
+                st.subheader("📋 Risk Analysis Summary")
+                st.info(narrative)
+                
+            except Exception as e:
+                st.error(f"Error analyzing risk: {str(e)}")
+                st.stop()
+    
+    # Display cached results if available
+    elif ticker and ticker.upper() in st.session_state.risk_results:
+        cached = st.session_state.risk_results[ticker.upper()]
+        st.info(f"Showing cached results for {ticker.upper()}. Click 'Analyze Risk' to refresh.")
+        
+        # Brief summary of cached results
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Risk Score", f"{cached['composite'].get('composite', 0)}/100")
+        with col2:
+            st.metric("Risk Level", cached['composite'].get('label', 'Unknown'))
+        with col3:
+            st.metric("Last Updated", "Cached")
 
 # Footer
 st.markdown("---")
