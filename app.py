@@ -42,13 +42,13 @@ with st.sidebar:
     col1, col2 = st.sidebar.columns(2)
     with col1:
         if st.sidebar.button("📈 Phase 1\nMarket Research", 
-                             use_container_width=True,
+                             width='stretch',
                              type="primary" if st.session_state.active_phase == "phase1" else "secondary"):
             st.session_state.active_phase = "phase1"
             st.rerun()
     with col2:
-        if st.sidebar.button("⚠️ Phase 2\nRisk Analysis",
-                             use_container_width=True,
+        if st.sidebar.button("📊 Phase 2\nRisk Analysis",
+                             width='stretch',
                              type="primary" if st.session_state.active_phase == "phase2" else "secondary"):
             st.session_state.active_phase = "phase2"
             st.rerun()
@@ -194,7 +194,6 @@ else:
         from agents.risk_agent import RiskAgent
         import plotly.graph_objects as go
         import plotly.express as px
-        st.write("DEBUG: All Phase 2 imports OK")
     except Exception as e:
         st.error(f"DEBUG: Import failed: {e}")
         st.stop()
@@ -264,7 +263,7 @@ else:
                         }
                     ))
                     fig_gauge.update_layout(height=300)
-                    st.plotly_chart(fig_gauge, use_container_width=True)
+                    st.plotly_chart(fig_gauge, width='stretch')
                 
                 with col2:
                     st.metric("Risk Level", composite.get("label", "Unknown"))
@@ -302,7 +301,7 @@ else:
                         yaxis_title="Volatility (%)",
                         hovermode='x unified'
                     )
-                    st.plotly_chart(fig_vol, use_container_width=True)
+                    st.plotly_chart(fig_vol, width='stretch')
                 else:
                     st.info("No volatility data available.")
                 
@@ -320,7 +319,7 @@ else:
                               marker_color=['green', 'red', 'gray'])
                     ])
                     fig_sentiment.update_layout(title="News Sentiment Distribution", yaxis_title="Count")
-                    st.plotly_chart(fig_sentiment, use_container_width=True)
+                    st.plotly_chart(fig_sentiment, width='stretch')
                 
                 with col2:
                     st.metric("Sentiment Score", f"{sentiment.get('score', 0)}%")
