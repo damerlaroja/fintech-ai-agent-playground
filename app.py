@@ -53,6 +53,8 @@ with st.sidebar:
             st.session_state.active_phase = "phase2"
             st.rerun()
     
+    st.sidebar.caption("⚠️ Demo uses simulated sentiment & sanctions data")
+    
     with st.expander("💡 Try asking..."):
         st.markdown("""
         • "What is the current price and fundamentals of AAPL?"
