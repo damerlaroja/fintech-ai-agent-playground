@@ -118,8 +118,8 @@ flowchart TD
 | **Reflection** | Self-correction on insufficient data | Higher quality responses |
 | **Stateful Memory** | LangGraph MemorySaver with thread persistence | Context-aware conversations |
 | **Planning** | Explicit StateGraph execution flow | Predictable agent behavior |
-| **Multi-Agent Orchestration** | Pre-wired supervisor pattern (Phase 2) | Scalable agent coordination |
-| **Human-in-the-Loop** | Interrupt nodes for high-stakes decisions | Regulatory compliance ready |
+| **Multi-Agent Orchestration** | Orchestrator pattern coordinating RiskAgent analysis pipeline | Scalable agent coordination |
+| **Human-in-the-Loop** | Planned Phase 3 — interrupt nodes for report approval workflows | Regulatory compliance ready |
 
 ### Software Engineering Patterns
 | Pattern | Implementation | Enterprise Value |
@@ -157,7 +157,7 @@ flowchart TD
 ## 📈 Performance & Reliability
 
 **Zero-Downtime Architecture**
-- ⚡ **Automatic provider fallback** - Gemini ↔ Groq switching
+- ⚡ **Automatic provider fallback** - Groq ↔ Gemini switching
 - 🔄 **Rate limit recovery** - graceful handling with cache clearing
 - 💾 **Memory optimization** - efficient state management
 - 🚀 **Query optimization** - 50%+ API call reduction
@@ -165,69 +165,65 @@ flowchart TD
 
 **Scalability Features**
 - 🔧 **Horizontal scaling** - stateless agent design
-- 💾 **Persistent sessions** - conversation continuity
-- 🔄 **Async processing** - concurrent user support
-- 📈 **Load balancing ready** - multi-instance deployment
 
 ---
 
-## Phase 2: Risk Agent
+## Phase 2: Risk Analysis Dashboard
 
-### 🔍 Risk Analysis Capabilities
+An interactive risk dashboard that scores equities across three dimensions 
+and generates an LLM-powered risk narrative.
 
-- **Value at Risk (VaR)**: Calculate potential losses with confidence intervals using historical simulation
-- **Beta Analysis**: Measure systematic risk relative to market benchmarks (S&P 500 default)
-- **Portfolio Risk Scoring**: Aggregate risk assessment across multiple positions with diversification metrics
-- **Transaction Compliance**: Sanctions screening and suspicious pattern detection with mock regulatory data
-- **Synthetic Data Generation**: Generate realistic transaction data for testing and analysis
+### Fintech Capabilities
 
-### 📦 New Dependencies Added
+| Capability | Description | Fintech Context |
+|---|---|---|
+| **Composite Risk Score** | Weighted score: Volatility 40%, Sentiment 30%, Regulatory 30% | Used for position limits and risk budgeting |
+| **Market Volatility** | Rolling 21-day annualized standard deviation | Options pricing and trader position sizing |
+| **Value at Risk (VaR)** | 95% confidence max loss quantification | Basel III capital allocation and regulatory reporting |
+| **Sentiment Scoring** | News headline analysis converted to 0-100 risk score | Alpha generation and market abuse surveillance |
+| **Regulatory Screening** | Sanctions list checking + regulatory keyword detection | OFAC/AML compliance and enhanced due diligence |
+| **Risk Narrative** | LLM-generated plain-language risk summary | Executive reporting and client-facing disclosures |
 
-- `faker` - Synthetic transaction data generation for testing scenarios
-- `numpy` - Statistical calculations for risk metrics and portfolio analysis
+> **Note:** Sentiment and sanctions data use simulated inputs for demo 
+> purposes. Production deployment would integrate live news APIs 
+> (NewsAPI, Bloomberg) and real OFAC screening services.
 
-### 🚀 How to Run and Test
+### Architecture & Design Patterns
 
-```bash
-# Start the application with Phase 2 active
-streamlit run app.py
+| Pattern | Where | Purpose |
+|---|---|---|
+| **Facade** | `RiskAgent` class | Simplifies complex risk operations behind a clean interface |
+| **Strategy** | `config/settings.py` → `get_llm()` | Runtime LLM provider selection with automatic fallback |
+| **Template Method** | `compute_composite_score()` | Standardized scoring algorithm with configurable weights |
+| **Chain of Responsibility** | `graph/workflow.py` | Sequential pipeline: preprocessor → research → risk agent |
+| **Circuit Breaker** | LLM failover chain | Prevents cascading failures when primary provider fails |
+| **Graceful Degradation** | All `RiskAgent` methods | Partial functionality preserved when data sources fail |
+| **Orchestrator** | `app.py` Phase 2 section | Coordinates volatility, sentiment, and regulatory agents |
+| **Tool Use** | `tools/risk_tools.py` | LangChain tools for VaR and Beta calculations |
 
-# Run the risk agent tests
-python -m pytest tests/test_risk_agent.py -v
-```
-
-### 🎯 Accessing the Risk Agent
-
-1. Launch the application and click **"⚠️ Phase 2\nRisk Analysis"** in the sidebar
-2. Ask questions like:
-   - "Calculate VaR for AAPL at 95% confidence"
-   - "What's the beta of TSLA relative to S&P 500?"
-   - "Analyze portfolio risk for [AAPL, MSFT, GOOGL]"
-   - "Check if transaction with Shadow Corp is sanctioned"
-   - "Generate 50 synthetic transactions for NVDA"
-
-### ⚠️ Known Limitations
-
-- **Mock regulatory data only** - Uses simulated sanctions list for demonstration
-- **Free-tier data constraints** - Limited to yfinance free-tier rate limits
-- **Educational purposes** - Not for production trading or investment advice
-- **No real-time data** - Historical analysis only, no live market data feeds
+### Tech Stack
+- **LangChain + LangGraph** — agent orchestration and workflow
+- **Groq (Llama 3.3 70B) → Gemini** — LLM with automatic failover
+- **yFinance** — live market data
+- **Plotly** — interactive gauge, volatility, and sentiment charts
+- **Streamlit** — real-time dashboard rendering
 
 ---
 
-## 🗺️ Production Roadmap
+## Production Roadmap
 
 | Phase | Features | Architecture | Status |
 |-------|----------|--------------|--------|
 | **1** ✅ | Market Research Agent | Single ReAct agent with tool access | **Production Ready** |
-| **2** 🔜 | Risk Scoring Agent | Multi-agent workflow with supervisor | **Architecture Ready** |
+| **2** ✅ | Risk Scoring Agent | Orchestrator pattern with RiskAgent facade and composite scoring | **Production Ready** |
 | **3** 🔜 | Report Writer + HITL | Human-in-the-loop approval workflows | **Design Complete** |
 
 ### Phase 2 Architecture (Pre-Wired)
-- **Risk analysis agent** with synthetic transaction generation
-- **Supervisor pattern** for agent coordination
-- **Portfolio risk metrics** and compliance reporting
-- **Zero-impact integration** - no changes to existing components
+- **RiskAgent facade** encapsulating volatility, sentiment, and regulatory analysis
+- **Composite risk scoring** with configurable weights (volatility 40%, sentiment 30%, regulatory 30%)
+- **Plotly visualizations** — gauge chart, volatility trend, sentiment distribution
+- **LLM-generated risk narratives** for executive-level reporting
+- **Zero-impact integration** — Phase 1 workflows fully preserved
 
 ### Phase 3 Architecture (Designed)
 - **Report generation** with customizable templates
@@ -247,7 +243,7 @@ python -m pytest tests/test_risk_agent.py -v
 **Installation**
 ```bash
 # Clone and setup
-git clone https://github.com/YOUR-USERNAME/fintech-ai-agent-playground.git
+git clone https://github.com/damerlaroja/fintech-ai-agent-playground.git
 cd fintech-ai-agent-playground
 python -m venv .venv
 source .venv/bin/activate  # Windows: .\.venv\Scripts\Activate
@@ -279,15 +275,15 @@ docker run -p 8501:8501 fintech-ai-agent
 
 ## 📊 API Configuration
 
-**Primary Provider: Google Gemini 2.5 Flash**
-- **Context Window**: 1M tokens for comprehensive analysis
-- **Rate Limits**: 10 RPM / 250 RPD (free tier)
-- **Strengths**: Complex reasoning, multi-step analysis
-
-**Fallback Provider: Groq Llama 3.3 70B**
+**Primary Provider: Groq Llama 3.3 70B**
 - **Rate Limits**: 14,400 RPD (free tier)
 - **Strengths**: High throughput, rapid responses
 - **Auto-activation**: Zero-downtime switching on failures
+
+**Fallback Provider: Google Gemini 2.5 Flash**
+- **Context Window**: 1M tokens for comprehensive analysis
+- **Rate Limits**: 10 RPM / 250 RPD (free tier)
+- **Strengths**: Complex reasoning, multi-step analysis
 
 ```toml
 # .streamlit/secrets.toml
