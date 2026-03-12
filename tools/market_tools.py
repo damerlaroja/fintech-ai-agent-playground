@@ -178,8 +178,19 @@ def get_earnings_history(ticker: str) -> str:
     """
     try:
         stock = yf.Ticker(ticker.upper())
-        earnings = stock.earnings_dates
-        
+        # Try get_earnings_dates with explicit limit first
+        try:
+            earnings = stock.get_earnings_dates(limit=8)
+        except Exception:
+            earnings = None
+
+        # Fallback: try with limit=4
+        if earnings is None or earnings.empty:
+            try:
+                earnings = stock.get_earnings_dates(limit=4)
+            except Exception:
+                earnings = None
+
         if earnings is None or earnings.empty:
             return f"No earnings data found for {ticker}"
             
