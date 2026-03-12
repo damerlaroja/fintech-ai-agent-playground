@@ -157,7 +157,7 @@ flowchart TD
 ## 📈 Performance & Reliability
 
 **Zero-Downtime Architecture**
-- ⚡ **Automatic provider fallback** - Gemini ↔ Groq switching
+- ⚡ **Automatic provider fallback** - Groq ↔ Gemini switching
 - 🔄 **Rate limit recovery** - graceful handling with cache clearing
 - 💾 **Memory optimization** - efficient state management
 - 🚀 **Query optimization** - 50%+ API call reduction
@@ -275,15 +275,15 @@ docker run -p 8501:8501 fintech-ai-agent
 
 ## 📊 API Configuration
 
-**Primary Provider: Google Gemini 2.5 Flash**
-- **Context Window**: 1M tokens for comprehensive analysis
-- **Rate Limits**: 10 RPM / 250 RPD (free tier)
-- **Strengths**: Complex reasoning, multi-step analysis
-
-**Fallback Provider: Groq Llama 3.3 70B**
+**Primary Provider: Groq Llama 3.3 70B**
 - **Rate Limits**: 14,400 RPD (free tier)
 - **Strengths**: High throughput, rapid responses
 - **Auto-activation**: Zero-downtime switching on failures
+
+**Fallback Provider: Google Gemini 2.5 Flash**
+- **Context Window**: 1M tokens for comprehensive analysis
+- **Rate Limits**: 10 RPM / 250 RPD (free tier)
+- **Strengths**: Complex reasoning, multi-step analysis
 
 ```toml
 # .streamlit/secrets.toml
