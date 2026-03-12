@@ -147,7 +147,7 @@ if st.session_state.active_phase == "phase1":
                         # Show refinement indicator if query was actually processed
                         if last_user_msg and last_user_msg != f"User asks: {original_query}" and last_user_msg != original_query:
                             refined_query = last_user_msg
-                            st.caption(f"🔍 Analyzed as: *{refined_query}*")
+                            st.caption(f"🔍 Analyzed as: _{refined_query}_")
                     
                     # Extract and display response
                     if response["messages"]:
